@@ -27,10 +27,7 @@ bool MatrixMultiplySequential::PreProcessingImpl() {
 
 bool MatrixMultiplySequential::ValidationImpl() {
   bool is_valid = true;
-  if (task_data->inputs_count[0] != 1 || task_data->inputs_count[1] != 1 ||
-      task_data->inputs_count[2] != static_cast<size_t>(n_ * n_) ||
-      task_data->inputs_count[3] != static_cast<size_t>(n_ * n_) ||
-      task_data->outputs_count[0] != static_cast<size_t>(n_ * n_)) {
+  if (task_data->inputs_count[2] != task_data->inputs_count[3]) {
     is_valid = false;
   }
 
