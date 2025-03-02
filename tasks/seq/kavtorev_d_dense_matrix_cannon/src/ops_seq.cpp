@@ -72,8 +72,8 @@ void MatrixMultiplySequential::CannonMatrixMultiply() {
           }
         }
 
-        int A_dest = (A_src + sqrt_size - 1) % sqrt_size;
-        int B_dest = (B_src + sqrt_size - 1) % sqrt_size;
+        int A_dest = (A_src + 1) % sqrt_size;
+        int B_dest = (B_src + 1) % sqrt_size;
 
         for (int k = 0; k < block_size_; ++k) {
           for (int l = 0; l < block_size_; ++l) {

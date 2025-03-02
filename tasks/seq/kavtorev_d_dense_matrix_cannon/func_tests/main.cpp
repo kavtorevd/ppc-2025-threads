@@ -55,7 +55,7 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, ValidationFailureTestSize) {
   int n = 4;
   int block_size = 2;
   std::vector<double> A = {1.0, 2.0, 3.0, 4.0};
-  std::vector<double> B = {1.0, 2.0, 3.0, 4.0};
+  std::vector<double> B = {1.0, 2.0, 3.0};
   std::vector<double> C(n * n, 0.0);
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&n));
@@ -68,7 +68,7 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, ValidationFailureTestSize) {
   task_data_seq->inputs_count.emplace_back(4);
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(B.data()));
-  task_data_seq->inputs_count.emplace_back(4);
+  task_data_seq->inputs_count.emplace_back(3);
 
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(C.data()));
   task_data_seq->outputs_count.emplace_back(n * n);
@@ -249,6 +249,43 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, ReverseSortedData) {
 
   std::vector<double> expected_C = {80.0,  90.0,  100.0, 110.0, 240.0, 278.0, 316.0, 354.0,
                                     400.0, 466.0, 532.0, 598.0, 560.0, 654.0, 748.0, 842.0};
+
+  for (int i = 0; i < n * n; ++i) {
+    ASSERT_NEAR(expected_C[i], C[i], 1e-12);
+  }
+}
+
+TEST(kavtorev_d_dense_matrix_cannon_seq, AllOnesData) {
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+
+  int n = 4;
+  int block_size = 2;
+  std::vector<double> A(n * n, 1.0);
+  std::vector<double> B(n * n, 1.0);
+  std::vector<double> C(n * n, 0.0);
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&n));
+  task_data_seq->inputs_count.emplace_back(1);
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&block_size));
+  task_data_seq->inputs_count.emplace_back(1);
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(A.data()));
+  task_data_seq->inputs_count.emplace_back(n * n);
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(B.data()));
+  task_data_seq->inputs_count.emplace_back(n * n);
+
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(C.data()));
+  task_data_seq->outputs_count.emplace_back(n * n);
+
+  MatrixMultiplySequential test_task_sequential(task_data_seq);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
+  test_task_sequential.PreProcessingImpl();
+  test_task_sequential.RunImpl();
+  test_task_sequential.PostProcessingImpl();
+
+  std::vector<double> expected_C(n * n, static_cast<double>(n));
 
   for (int i = 0; i < n * n; ++i) {
     ASSERT_NEAR(expected_C[i], C[i], 1e-12);
