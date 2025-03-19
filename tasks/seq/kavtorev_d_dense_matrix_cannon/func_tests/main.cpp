@@ -151,14 +151,7 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_0x0) {
   std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
 
   kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_TRUE(test_task_sequential.ValidationImpl());
-  test_task_sequential.PreProcessingImpl();
-  test_task_sequential.RunImpl();
-  test_task_sequential.PostProcessingImpl();
-
-  for (size_t i = 0; i < res.size(); ++i) {
-    ASSERT_EQ(res[i], out[i]);
-  }
+  ASSERT_FALSE(test_task_sequential.ValidationImpl());
 }
 
 TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_100x100) {
