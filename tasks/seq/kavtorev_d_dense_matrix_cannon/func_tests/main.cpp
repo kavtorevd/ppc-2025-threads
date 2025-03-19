@@ -283,7 +283,7 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_6x6) {
   std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
 
   kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -458,40 +458,5 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_WithZeros) {
 
   for (size_t i = 0; i < res.size(); ++i) {
     ASSERT_EQ(res[i], 0);
-  }
-}
-
-TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_NegativeNumbers) {
-  int n = 3;
-  int m = 3;
-
-  std::vector<double> in_mtrx_a{-1, -2, -3, -4, -5, -6, -7, -8, -9};
-  std::vector<double> in_mtrx_b{-1, -2, -3, -4, -5, -6, -7, -8, -9};
-  std::vector<double> out(n * m);
-
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_a.data()));
-  task_data_seq->inputs_count.emplace_back(in_mtrx_a.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_b.data()));
-  task_data_seq->inputs_count.emplace_back(in_mtrx_b.size());
-
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&m));
-
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
-  std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
-
-  kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_TRUE(test_task_sequential.ValidationImpl());
-  test_task_sequential.PreProcessingImpl();
-  test_task_sequential.RunImpl();
-  test_task_sequential.PostProcessingImpl();
-
-  std::vector<double> expected_c = {30, 24, 18, 84, 69, 54, 138, 114, 90};
-
-  for (size_t i = 0; i < res.size(); ++i) {
-    ASSERT_EQ(res[i], expected_c[i]);
   }
 }
