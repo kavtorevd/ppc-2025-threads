@@ -18,7 +18,7 @@ std::vector<double> kavtorev_d_dense_matrix_cannon_omp::CannonMatrixMultiplicati
     return {};
   }
 
-#pragma omp parallel for collapse(2) schedule(static)  // Распараллеливаем внешние циклы
+#pragma omp parallel for schedule(static)  // Распараллеливаем внешние циклы
   for (int i = 0; i < n; i += size_block) {
     for (int j = 0; j < m; j += size_block) {
       for (int k = 0; k < m; k += size_block) {
