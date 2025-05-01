@@ -40,7 +40,7 @@ std::vector<double> kavtorev_d_dense_matrix_cannon_tbb::CannonMatrixMultiplicati
                       for (int i = range.rows().begin(); i < range.rows().end(); i += size_block) {
                         for (int j = range.cols().begin(); j < range.cols().end(); j += size_block) {
                           for (int k = 0; k < m; k += size_block) {
-                            ProcessBlock(i, j, k);
+                            process_block(i, j, k);
                           }
                         }
                       }
