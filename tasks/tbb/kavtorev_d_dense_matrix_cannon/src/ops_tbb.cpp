@@ -1,8 +1,8 @@
 // Copyright 2025 Kavtorev Dmitry
 #include "tbb/kavtorev_d_dense_matrix_cannon/include/ops_tbb.hpp"
 
-#include <tbb/parallel_for.h>
 #include <tbb/blocked_range2d.h>
+#include <tbb/parallel_for.h>
 
 #include <algorithm>
 #include <cstddef>
