@@ -1,7 +1,8 @@
 // Copyright 2025 Kavtorev Dmitry
 #include "tbb/kavtorev_d_dense_matrix_cannon/include/ops_tbb.hpp"
 
-#include <omp.h>
+#include <tbb/parallel_for.h>
+#include <tbb/blocked_range2d.h>
 
 #include <algorithm>
 #include <cstddef>
@@ -18,25 +19,27 @@ std::vector<double> kavtorev_d_dense_matrix_cannon_tbb::CannonMatrixMultiplicati
     return {};
   }
 
-#pragma omp parallel for schedule(static)
-  for (int i = 0; i < n; i += size_block) {
-    for (int j = 0; j < m; j += size_block) {
-      for (int k = 0; k < m; k += size_block) {
-        int i_end = std::min(i + size_block, n);
-        int j_end = std::min(j + size_block, m);
-        int k_end = std::min(k + size_block, m);
+  tbb::parallel_for(tbb::blocked_range2d<int>(0, n, size_block, 0, m, size_block),
+                    [&](const tbb::blocked_range2d<int>& range) {
+                      for (int i = range.rows().begin(); i < range.rows().end(); i += size_block) {
+                        for (int j = range.cols().begin(); j < range.cols().end(); j += size_block) {
+                          for (int k = 0; k < m; k += size_block) {
+                            int i_end = std::min(i + size_block, n);
+                            int j_end = std::min(j + size_block, m);
+                            int k_end = std::min(k + size_block, m);
 
-        for (int ii = i; ii < i_end; ++ii) {
-          for (int kk = k; kk < k_end; ++kk) {
-            double a_ik = a[(ii * m) + kk];
-            for (int jj = j; jj < j_end; ++jj) {
-              mtrx_c[(ii * m) + jj] += a_ik * b[(kk * m) + jj];
-            }
-          }
-        }
-      }
-    }
-  }
+                            for (int ii = i; ii < i_end; ++ii) {
+                              for (int kk = k; kk < k_end; ++kk) {
+                                double a_ik = a[(ii * m) + kk];
+                                for (int jj = j; jj < j_end; ++jj) {
+                                  mtrx_c[(ii * m) + jj] += a_ik * b[(kk * m) + jj];
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    });
 
   return mtrx_c;
 }
@@ -51,14 +54,14 @@ std::vector<double> kavtorev_d_dense_matrix_cannon_tbb::MultiplyMatrix(const std
     return {};
   }
 
-#pragma omp parallel for schedule(static)  // Распараллеливаем внешние циклы
-  for (int i = 0; i < rows_a; ++i) {
+  tbb::parallel_for(0, rows_a, [&](int i) {
     for (int j = 0; j < col_b; ++j) {
       for (int k = 0; k < col_a; ++k) {
         mtrx_c[(i * col_b) + j] += a[(i * col_a) + k] * b[(k * col_b) + j];
       }
     }
-  }
+  });
+
   return mtrx_c;
 }
 
