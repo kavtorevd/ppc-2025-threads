@@ -11,31 +11,36 @@
 std::vector<double> kavtorev_d_dense_matrix_cannon_tbb::CannonMatrixMultiplication(const std::vector<double>& a,
                                                                                    const std::vector<double>& b, int n,
                                                                                    int m) {
-  int size_block = std::min(n, m);
-
-  std::vector<double> mtrx_c(n * m, 0.0);
-
   if (n == 0 || m == 0) {
     return {};
   }
 
+  int size_block = std::min(n, m);
+  std::vector<double> mtrx_c(n * m, 0.0);
+
+  // Вспомогательная функция для обработки одного блока
+  auto ProcessBlock = [&](int i, int j, int k) {
+    int i_end = std::min(i + size_block, n);
+    int j_end = std::min(j + size_block, m);
+    int k_end = std::min(k + size_block, m);
+
+    for (int ii = i; ii < i_end; ++ii) {
+      for (int kk = k; kk < k_end; ++kk) {
+        double a_ik = a[(ii * m) + kk];
+        for (int jj = j; jj < j_end; ++jj) {
+          mtrx_c[(ii * m) + jj] += a_ik * b[(kk * m) + jj];
+        }
+      }
+    }
+  };
+
+  // Параллельная обработка блоков
   tbb::parallel_for(tbb::blocked_range2d<int>(0, n, size_block, 0, m, size_block),
                     [&](const tbb::blocked_range2d<int>& range) {
                       for (int i = range.rows().begin(); i < range.rows().end(); i += size_block) {
                         for (int j = range.cols().begin(); j < range.cols().end(); j += size_block) {
                           for (int k = 0; k < m; k += size_block) {
-                            int i_end = std::min(i + size_block, n);
-                            int j_end = std::min(j + size_block, m);
-                            int k_end = std::min(k + size_block, m);
-
-                            for (int ii = i; ii < i_end; ++ii) {
-                              for (int kk = k; kk < k_end; ++kk) {
-                                double a_ik = a[(ii * m) + kk];
-                                for (int jj = j; jj < j_end; ++jj) {
-                                  mtrx_c[(ii * m) + jj] += a_ik * b[(kk * m) + jj];
-                                }
-                              }
-                            }
+                            ProcessBlock(i, j, k);
                           }
                         }
                       }
