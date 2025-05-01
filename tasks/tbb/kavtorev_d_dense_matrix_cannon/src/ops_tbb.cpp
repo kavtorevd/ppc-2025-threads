@@ -1,8 +1,8 @@
 // Copyright 2025 Kavtorev Dmitry
 #include "tbb/kavtorev_d_dense_matrix_cannon/include/ops_tbb.hpp"
 
-#include <tbb/blocked_range2d.h>
-#include <tbb/parallel_for.h>
+#include <oneapi/tbb/blocked_range2d.h>
+#include <oneapi/tbb/parallel_for.h>
 
 #include <algorithm>
 #include <cstddef>
@@ -19,7 +19,7 @@ std::vector<double> kavtorev_d_dense_matrix_cannon_tbb::CannonMatrixMultiplicati
   std::vector<double> mtrx_c(n * m, 0.0);
 
   // Вспомогательная функция для обработки одного блока
-  auto ProcessBlock = [&](int i, int j, int k) {
+  auto process_block = [&](int i, int j, int k) {
     int i_end = std::min(i + size_block, n);
     int j_end = std::min(j + size_block, m);
     int k_end = std::min(k + size_block, m);
